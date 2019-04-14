@@ -126,7 +126,7 @@ public:
     //GUI
     Interface interf;
     bool drawInterface;
-    
+    bool drawCamera;
     
     bool bDrawnAnything;
     

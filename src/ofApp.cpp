@@ -60,25 +60,11 @@ void ofApp::setup(){
     //Set up parameters
     param.setup();        //Global parameters
     history = 0.0;
-    bornRate = 20;
+    bornRate = 5;
     
     bornCount = 0;
     time0 = ofGetElapsedTimef();
     
-//    //GUI
-//    interf.setup();
-//    interf.addSlider( "rate", &bornRate, 0, 3000 );
-//    interf.addSlider( "lifeTime", &param.lifeTime, 0, 5 );
-//    interf.addSlider( "history", &history, 0, 1 );
-//
-//    interf.addSlider( "eRad", &param.eRad, 0, 800 );
-//    interf.addSlider( "velRad", &param.velRad, 0, 400 );
-//    interf.addSlider( "rotate", &param.rotate, -500, 500 );
-//    interf.addSlider( "spinning", &param.spinning, -1000, 1000 );
-//    interf.addSlider( "force", &param.force, -1000, 1000 );
-//    interf.addSlider( "friction", &param.friction, 0, 0.1 );
-//
-//    drawInterface = true;
     
 }
 
@@ -292,17 +278,19 @@ void ofApp::draw(){
     ofNoFill();
     
     
-    for (int i = 0; i < 6; i++){
-        ofDrawRectangle(700+(i*105),50,100,100);
-        ofDrawRectangle(700+(i*105),155,100,100);
-        ofDrawRectangle(700+(i*105),260,100,100);
-        ofDrawRectangle(700+(i*105),365,100,100);
-        ofDrawRectangle(700+(i*105),470,100,100);
+    for (int i = 0; i < 13; i++){
+        ofDrawRectangle(150+(i*105),100,100,100);
+        ofDrawRectangle(150+(i*105),205,100,100);
+        ofDrawRectangle(150+(i*105),310,100,100);
+        ofDrawRectangle(150+(i*105),415,100,100);
+        ofDrawRectangle(150+(i*105),520,100,100);
+        ofDrawRectangle(150+(i*105),625,100,100);
+        ofDrawRectangle(150+(i*105),730,100,100);
         
     }
-    for (int j = 0; j < 5; j++){
-        ofDrawRectangle(700,50+(j*105),100,100);
-    }
+//    for (int j = 0; j < 11; j++){
+//        ofDrawRectangle(100+(j*105),60,100,100);
+//    }
     
     ofSetColor(190);
     ofSetHexColor(0x000000);
@@ -313,14 +301,19 @@ void ofApp::draw(){
     }
     ofSetColor(255,255,255);
     
+
     //draw all cv images
-    rgb.draw(0,0);
+//    rgb.draw(0,0);
     //    hsb.draw(640,0);
     //    hue.draw(0,480);
     //    sat.draw(640,480);
     //    bri.draw(1280,480);
     //    filtered.draw(0,960);
     //    contours.draw(0,0);
+    
+    if(drawCamera){
+        rgb.draw(0,0);
+    }else {}
     
     ofSetColor(0, 0, 230);
     ofFill();
@@ -337,23 +330,7 @@ void ofApp::draw(){
     //2. Draw buffer on the screen
     ofSetColor( 255, 255, 255 );
     fbo.draw( 0, 0 );
-    
-    //GUI
-//    if ( drawInterface ) {
-//        //        //Draw text
-//        //        ofSetColor( 0, 0, 0 );
-//        //        ofDrawBitmapString( "Particles: " + ofToString( p.size() ), 20, 40 );
-//        //
-//        //        //Draw sliders
-////                interf.draw();
-////
-//        //Draw emitter as a circle
-//        ofSetCircleResolution( 50 );
-//        ofNoFill();
-//        ofSetColor( 128, 128, 128 );
-//        ofDrawCircle( param.eCenter, param.eRad );
-//        ofSetCircleResolution( 20 );
-//    }
+
     
     
     
@@ -420,7 +397,7 @@ void ofApp::draw(){
     reportStream << "Pink hue value " << trackHue1 << "    " << "pink blobs found " << contourFinder1.nBlobs   <<endl
     << "Yellow hue value " << trackHue2 << "  " << "yellow blobs found " << contourFinder2.nBlobs <<endl
     << "Blue hue value " << trackHue3 << "    " << "blue blobs found " << contourFinder3.nBlobs  <<endl;
-    ofDrawBitmapString(reportStream.str(), 20, 550);
+    ofDrawBitmapString(reportStream.str(), 20, 950);
     
     //data monitor
     ofSetColor(51, 57, 66);
@@ -429,16 +406,14 @@ void ofApp::draw(){
     << "Town capita: $" << ((contourFinder1 .nBlobs*3) + (contourFinder2.nBlobs*4) + (contourFinder3.nBlobs*8))*1.77 <<endl
     << "Public health score: " << (contourFinder1 .nBlobs*0.43) + (contourFinder2.nBlobs*0.8) + (contourFinder3.nBlobs*3.75) << " pts" <<endl;
     //    << "Air pollutant level:" << trackHue1 <<endl;
-    ofDrawBitmapString(townData.str(), 670, 30);
+    ofDrawBitmapString(townData.str(), 20, 30);
     
     //---------------------------------------------------------
     
 }
 
 
-//--------------------------------------------------------------
-//----------------------  GUI ----------------------------------
-//--------------------------------------------------------------
+
 void Interface::setup(){
     selected = -1;
 }
@@ -548,6 +523,10 @@ void ofApp::keyPressed(int key){
         trackHue3 = hue.getPixels()[my*w+mx];
     }
     
+    switch (key){
+        case ' ':
+            drawCamera = ! drawCamera;
+    }
 }
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
