@@ -7,7 +7,7 @@ void ofApp::setup(){
     ofSetVerticalSync(true);
     
     ofSetCircleResolution(256);
-    ofBackground(255,255,255);
+    
     ofSetVerticalSync(true);
     ofBackground(255,255,255);
     ofSetFrameRate(60);
@@ -97,7 +97,6 @@ void ofApp::update(){
         //        ofColor c = ofColor::fromHsb( 0, 255, 255 ); // bright red
         //        c.setHue( 128 ); // now bright cyan
         
-        
         //filter image based on the hue value were looking for
         //Goal is to track 3 different colors and draw different circles accordingly
         
@@ -113,17 +112,17 @@ void ofApp::update(){
         
         //run the contour finder on the filtered image to find blobs with a certain hue
         contourFinder1.findContours(filter1, 50, w*h/4, 1, false, false); // pink
-        //        contourFinder2.findContours(filter2, 50, w*h/4, 1, false, false); // yellow
-        //        contourFinder3.findContours(filter3, 50, w*h/4, 1, false, false); // blue
+        contourFinder2.findContours(filter2, 50, w*h/4, 1, false, false); // yellow
+        contourFinder3.findContours(filter3, 50, w*h/4, 1, false, false); // blue
         
         for (int i=0; i<contourFinder1.nBlobs; i++) {
-            param.eCenter1 = ofPoint(  contourFinder1.blobs[i].centroid.x+700, contourFinder1.blobs[i].centroid.y );
+            param.eCenter1 = ofPoint(  contourFinder1.blobs[i].centroid.x, contourFinder1.blobs[i].centroid.y);
         }
         for (int i=0; i<contourFinder2.nBlobs; i++) {
-            param.eCenter2 = ofPoint(  contourFinder2.blobs[i].centroid.x+700, contourFinder2.blobs[i].centroid.y );
+            param.eCenter2 = ofPoint(  contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y );
         }
         for (int i=0; i<contourFinder3.nBlobs; i++) {
-            param.eCenter3 = ofPoint(  contourFinder3.blobs[i].centroid.x+700, contourFinder3.blobs[i].centroid.y );
+            param.eCenter3 = ofPoint(  contourFinder3.blobs[i].centroid.x, contourFinder3.blobs[i].centroid.y );
         }
     }
     
@@ -191,7 +190,9 @@ ofPoint randomPointInCircle( float maxRad ){
 }
 
 void Particle::setup() {
-    pos = param.eCenter1 + randomPointInCircle( param.eRad );
+    pos1 = param.eCenter1 + randomPointInCircle( param.eRad );
+    pos2 = param.eCenter2 + randomPointInCircle( param.eRad );
+    pos3 = param.eCenter3 + randomPointInCircle( param.eRad );
     vel = randomPointInCircle( param.velRad );
     time = 0;
     lifeTime = param.lifeTime;
@@ -205,23 +206,44 @@ void Particle::update( float dt ){
         vel.rotate( 0, 0, param.rotate * dt );
         
         ofPoint acc;         //Acceleration
-        ofPoint delta = pos - param.eCenter1;
-        float len = delta.length();
-        if ( ofInRange( len, 0, param.eRad ) ) {
-            delta.normalize();
-            
+        ofPoint delta1 = pos1 - param.eCenter1;
+        ofPoint delta2 = pos2 - param.eCenter2;
+        ofPoint delta3 = pos3 - param.eCenter3;
+        float len1 = delta1.length();
+        float len2 = delta2.length();
+        float len3 = delta3.length();
+        if ( ofInRange( len1, 0, param.eRad ) ) {
+            delta1.normalize();
             //Attraction/repulsion force
-            acc += delta * param.force;
-            
+            acc += delta1 * param.force;
             //Spinning force
-            acc.x += -delta.y * param.spinning;
-            acc.y += delta.x * param.spinning;
+            acc.x += -delta1.y * param.spinning;
+            acc.y += delta1.x * param.spinning;
         }
+        if ( ofInRange( len2, 0, param.eRad ) ) {
+            delta2.normalize();
+            //Attraction/repulsion force
+            acc += delta2 * param.force;
+            //Spinning force
+            acc.x += -delta2.y * param.spinning;
+            acc.y += delta2.x * param.spinning;
+        }
+        if ( ofInRange( len3, 0, param.eRad ) ) {
+            delta3.normalize();
+            //Attraction/repulsion force
+            acc += delta3 * param.force;
+            //Spinning force
+            acc.x += -delta3.y * param.spinning;
+            acc.y += delta3.x * param.spinning;
+        }
+        
         vel += acc * dt;            //Euler method
         vel *= (1-param.friction);  //Friction
         
         //Update pos
-        pos += vel * dt;    //Euler method
+        pos1 += vel * dt;
+        pos2 += vel * dt;
+        pos3 += vel * dt;
         
         //Update time and check if particle should die
         time += dt;
@@ -243,7 +265,9 @@ void Particle::draw(){
         float color = ofMap( time, 0, lifeTime, 100, 255 );
         ofSetColor( color );
         
-        ofDrawCircle( pos, size );  //Draw particle
+        ofDrawCircle( pos1, size );  //Draw particle
+        ofDrawCircle( pos2, size );  //Draw particle
+        ofDrawCircle( pos3, size );  //Draw particle
     }
 }
 
@@ -274,12 +298,12 @@ void ofApp::draw(){
     
     //floating particles
     
-    ofSetColor(230);
+    ofSetColor(200);
     ofNoFill();
     
     
     for (int i = 0; i < 13; i++){
-        ofDrawRectangle(150+(i*105),100,100,100);
+        ofDrawRectangle(150+(i*105),100, 100,100);
         ofDrawRectangle(150+(i*105),205,100,100);
         ofDrawRectangle(150+(i*105),310,100,100);
         ofDrawRectangle(150+(i*105),415,100,100);
@@ -288,9 +312,7 @@ void ofApp::draw(){
         ofDrawRectangle(150+(i*105),730,100,100);
         
     }
-//    for (int j = 0; j < 11; j++){
-//        ofDrawRectangle(100+(j*105),60,100,100);
-//    }
+
     
     ofSetColor(190);
     ofSetHexColor(0x000000);
@@ -314,6 +336,8 @@ void ofApp::draw(){
     if(drawCamera){
         rgb.draw(0,0);
     }else {}
+    
+    
     
     ofSetColor(0, 0, 230);
     ofFill();
@@ -343,45 +367,39 @@ void ofApp::draw(){
         float y = contourFinder1.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()/2.5f);
         float x0 = contourFinder1.blobs[i].centroid.x+100*cos(ofGetElapsedTimef()/1.5f);
         float y0 = contourFinder1.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()/2.5f);
-        ofSetColor(0, 0, 255);
-        ofDrawCircle(contourFinder1.blobs[i].centroid.x, contourFinder1.blobs[i].centroid.y, 10); // drawing blue circles on top of video
+//        ofSetColor(0, 0, 255);
+//        ofDrawCircle(contourFinder1.blobs[i].centroid.x*3, contourFinder1.blobs[i].centroid.y*2, 30);
         ofSetColor(255, 153, 170);
-        ofDrawCircle(contourFinder1.blobs[i].centroid.x+700, contourFinder1.blobs[i].centroid.y, 30); // drawing pink circles on grid
+        ofDrawCircle(contourFinder1.blobs[i].centroid.x, contourFinder1.blobs[i].centroid.y, 30); // drawing pink circles on grid
         ofSetColor(183, 73, 91);
-        ofDrawBitmapString("wind turbine", contourFinder1.blobs[i].centroid.x+650, contourFinder1.blobs[i].centroid.y+50);
-        citizen.draw(x0+700,y0,30,30);
+        ofDrawBitmapString("wind turbine", contourFinder1.blobs[i].centroid.x, contourFinder1.blobs[i].centroid.y+50);
         citizen.draw(x0,y0,30,30);
-        citizen.draw(x,y,30,30);
-        
+//        citizen.draw(x,y,30,30);
     }
     
-//    for (int i=0; i<contourFinder2.nBlobs; i++) {
-//        float x1 = contourFinder2.blobs[i].centroid.x+50*cos(ofGetElapsedTimef()*1.0f);
-//        float y1 = contourFinder2.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()/3.5f);
-//        ofSetColor(0, 0, 255);
-//        ofDrawCircle(contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y, 30); // drawing blue circles on top of video
-//        ofSetColor(244, 215, 100);
-//        ofDrawCircle(contourFinder2.blobs[i].centroid.x+700, contourFinder2.blobs[i].centroid.y, 30); // drawing pink circles on grid
-//        ofSetColor(191, 115, 22);
-//        ofDrawBitmapString("solar station", contourFinder2.blobs[i].centroid.x+650, contourFinder2.blobs[i].centroid.y+50);
-//        citizen.draw(x1+700, y1,30,30);
-//    }
+    for (int i=0; i<contourFinder2.nBlobs; i++) {
+        float x1 = contourFinder2.blobs[i].centroid.x*2+50*cos(ofGetElapsedTimef()*1.0f);
+        float y1 = contourFinder2.blobs[i].centroid.y*1.5+100*sin(ofGetElapsedTimef()/3.5f);
+        ofSetColor(244, 215, 100);
+        ofDrawCircle(contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y, 30); // drawing yellow circles on grid
+        ofSetColor(191, 115, 22);
+        ofDrawBitmapString("solar station", contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y+50);
+        citizen.draw(x1, y1,30,30);
+    }
     
-    //    for (int i=0; i<contourFinder3.nBlobs; i++) {
-    //        float x2 = contourFinder3.blobs[i].centroid.x+30*cos(ofGetElapsedTimef()*2.0f);
-    //        float y2 = contourFinder3.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()*0.75f);
-    //        ofSetColor(0, 0, 255);
-    //        ofDrawCircle(contourFinder3.blobs[i].centroid.x, contourFinder3.blobs[i].centroid.y, 30); // drawing blue circles on top of video
-    //        ofSetColor(100, 143, 244);
-    //        ofDrawCircle(contourFinder3.blobs[i].centroid.x+700, contourFinder3.blobs[i].centroid.y, 30); // drawing pink circles on grid
-    //        ofSetColor(9, 37, 104);
-    //        ofDrawBitmapString("nuclear plant", contourFinder3.blobs[i].centroid.x+650, contourFinder3.blobs[i].centroid.y+50);
-    //        citizen.draw(x2+700, y2,30,30);
-    //    }
+        for (int i=0; i<contourFinder3.nBlobs; i++) {
+            float x2 = contourFinder3.blobs[i].centroid.x*2+30*cos(ofGetElapsedTimef()*2.0f);
+            float y2 = contourFinder3.blobs[i].centroid.y*1.5+100*sin(ofGetElapsedTimef()*0.75f);
+            ofSetColor(100, 143, 244);
+            ofDrawCircle(contourFinder3.blobs[i].centroid.x, contourFinder3.blobs[i].centroid.y, 30); // drawing blue circles on grid
+            ofSetColor(9, 37, 104);
+            ofDrawBitmapString("nuclear plant", contourFinder3.blobs[i].centroid.x+50, contourFinder3.blobs[i].centroid.y+50);
+            citizen.draw(x2, y2,30,30);
+        }
     
-    ofSetColor(0, 0, 230);
-    //    ofSetHexColor(0x000000);
-    ofNoFill();
+//    ofSetColor(0, 0, 230);
+//    //    ofSetHexColor(0x000000);
+//    ofNoFill();
     ofBeginShape();
     ofEndShape();
     
@@ -468,13 +486,7 @@ void Interface::mouseReleased (int x, int y ){
     selected = -1;
 }
 
-//--------------------------------------------------------------
-//For saving/loading presets we use very simple method:
-//just pack all sliders values into list and save/load it from file.
-//Its very simple, but is not practical, because when saved,
-//you can not change the number of sliders and these order.
-//The best solution is using ofxXmlSettings - it lets write sliders values
-//and specify these names
+
 
 void Interface::save( int index )
 {

@@ -13,7 +13,9 @@ public:
     void update( float dt );   //Recalculate physics
     void draw();               //Draw particle
     
-    ofPoint pos;               //Position
+    ofPoint pos1;
+    ofPoint pos2;
+    ofPoint pos3; //Position
     ofPoint vel;               //Velocity
     float time;                //Time of living
     float lifeTime;            //Allowed lifetime
