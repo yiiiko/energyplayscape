@@ -139,6 +139,7 @@ public:
     ofxCvContourFinder contourFinder2;
     ofxCvContourFinder contourFinder3;
     
+    ofImage background;
     ofImage citizen;
     ofImage citizenh;
     ofImage citizens;

@@ -41,6 +41,7 @@ void ofApp::setup(){
     filter2.allocate(w, h);
     filter3.allocate(w, h);
     
+    background.load("images/background.png");
     citizen.load("images/citizen.png");
     citizenh.load("images/citizenh.png");
     citizens.load("images/citizen.png");
@@ -102,9 +103,9 @@ void ofApp::update(){
         
         for (int i=0; i<w*h; i++) {
             
-            filter1.getPixels()[i] = ofInRange(hue.getPixels()[i],trackHue1-1,trackHue1+1) ? 360:0; // trackHue1 = pink
-            filter2.getPixels()[i] = ofInRange(hue.getPixels()[i],trackHue2-1,trackHue2+1) ? 360:0; // trackHue2 = yellow
-            filter3.getPixels()[i] = ofInRange(hue.getPixels()[i],trackHue3-1,trackHue3+1) ? 360:0; // trackHue3 = blue
+            filter1.getPixels()[i] = ofInRange(hue.getPixels()[i],trackHue1-1,trackHue1+1) ? 360:0; // trackHue1 = pink wind
+            filter2.getPixels()[i] = ofInRange(hue.getPixels()[i],trackHue2-1,trackHue2+1) ? 360:0; // trackHue2 = yellow coal
+            filter3.getPixels()[i] = ofInRange(hue.getPixels()[i],trackHue3-1,trackHue3+1) ? 360:0; // trackHue3 = blue nuclear
         }
         filter1.flagImageChanged();
         filter2.flagImageChanged();
@@ -255,6 +256,7 @@ void Particle::update( float dt ){
 
 //--------------------------------------------------------------
 void Particle::draw(){
+    
     if ( live ) {
         //Compute size
         float size = ofMap(
@@ -276,12 +278,12 @@ void Particle::draw(){
 
 void ofApp::draw(){
     
-  
+
     
-  
     
     //1. Drawing to buffer
     fbo.begin();
+
     
     //Draw semi-transparent white rectangle
     //to slightly clearing a buffer (depends on history value)
@@ -301,17 +303,17 @@ void ofApp::draw(){
     ofSetColor(200);
     ofNoFill();
     
-    
-    for (int i = 0; i < 13; i++){
-        ofDrawRectangle(150+(i*105),100, 100,100);
-        ofDrawRectangle(150+(i*105),205,100,100);
-        ofDrawRectangle(150+(i*105),310,100,100);
-        ofDrawRectangle(150+(i*105),415,100,100);
-        ofDrawRectangle(150+(i*105),520,100,100);
-        ofDrawRectangle(150+(i*105),625,100,100);
-        ofDrawRectangle(150+(i*105),730,100,100);
-        
-    }
+//
+//    for (int i = 0; i < 13; i++){
+//        ofDrawRectangle(150+(i*105),100, 100,100);
+//        ofDrawRectangle(150+(i*105),205,100,100);
+//        ofDrawRectangle(150+(i*105),310,100,100);
+//        ofDrawRectangle(150+(i*105),415,100,100);
+//        ofDrawRectangle(150+(i*105),520,100,100);
+//        ofDrawRectangle(150+(i*105),625,100,100);
+//        ofDrawRectangle(150+(i*105),730,100,100);
+//
+//    }
 
     
     ofSetColor(190);
@@ -353,9 +355,10 @@ void ofApp::draw(){
     
     //2. Draw buffer on the screen
     ofSetColor( 255, 255, 255 );
-    fbo.draw( 0, 0 );
-
     
+    fbo.draw( 0, 0 );
+    background.draw(0,0,1600,1048);
+ 
     
     
     float x3 = 850;
@@ -378,8 +381,8 @@ void ofApp::draw(){
     }
     
     for (int i=0; i<contourFinder2.nBlobs; i++) {
-        float x1 = contourFinder2.blobs[i].centroid.x*2+50*cos(ofGetElapsedTimef()*1.0f);
-        float y1 = contourFinder2.blobs[i].centroid.y*1.5+100*sin(ofGetElapsedTimef()/3.5f);
+        float x1 = contourFinder2.blobs[i].centroid.x+50*cos(ofGetElapsedTimef()*1.0f);
+        float y1 = contourFinder2.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()/3.5f);
         ofSetColor(244, 215, 100);
         ofDrawCircle(contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y, 30); // drawing yellow circles on grid
         ofSetColor(191, 115, 22);
@@ -420,11 +423,18 @@ void ofApp::draw(){
     //data monitor
     ofSetColor(51, 57, 66);
     stringstream townData;
-    townData<< "Town size: " << (contourFinder1 .nBlobs*3) + (contourFinder2.nBlobs*4) + (contourFinder3.nBlobs*8)<< " people" << endl
-    << "Town capita: $" << ((contourFinder1 .nBlobs*3) + (contourFinder2.nBlobs*4) + (contourFinder3.nBlobs*8))*1.77 <<endl
-    << "Public health score: " << (contourFinder1 .nBlobs*0.43) + (contourFinder2.nBlobs*0.8) + (contourFinder3.nBlobs*3.75) << " pts" <<endl;
-    //    << "Air pollutant level:" << trackHue1 <<endl;
+    townData<< "Town size: " << (contourFinder1 .nBlobs*3) + (contourFinder2.nBlobs*4) + (contourFinder3.nBlobs*8)<< " people" << endl //citizens recruited based on the electricity supplied
+    << "Town capita: $" << ((contourFinder1 .nBlobs*3) + (contourFinder2.nBlobs*4) + (contourFinder3.nBlobs*8))*101.8 <<endl  //every citizen generates $101.8/day
+    << "Air Quality Index: " << (contourFinder1 .nBlobs*0.43) + (contourFinder2.nBlobs*0.8) + (contourFinder3.nBlobs*3.75) << " level" <<endl;
     ofDrawBitmapString(townData.str(), 20, 30);
+    
+    stringstream pollutantData;
+    pollutantData<< "Air Pollutants and Greenhouse Gases" <<endl
+    << "  " <<endl
+    << "Sulfur Dioxide:               " << (contourFinder1 .nBlobs*0.055) + (contourFinder2.nBlobs*1.4) + (contourFinder3.nBlobs*0.021) << "grams/cubic meter" <<endl
+    << "Nitrogen Oxide:               " << (contourFinder1 .nBlobs*0.065) + (contourFinder2.nBlobs*1.2) + (contourFinder3.nBlobs*0.025) << "grams/cubic meter" <<endl
+    << "Carbon Dioxide - Equivalent:  " << (contourFinder1 .nBlobs*12) + (contourFinder2.nBlobs*1000) + (contourFinder3.nBlobs*15) << "grams/cubic meter" <<endl;
+    ofDrawBitmapString(pollutantData.str(), 1220, 30);
     
     //---------------------------------------------------------
     
