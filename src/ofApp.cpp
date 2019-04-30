@@ -36,7 +36,6 @@ void ofApp::setup(){
     hue.allocate(w, h);
     sat.allocate(w, h);
     bri.allocate(w, h);
-    filtered.allocate(w, h);
     filter1.allocate(w, h);
     filter2.allocate(w, h);
     filter3.allocate(w, h);
@@ -44,7 +43,7 @@ void ofApp::setup(){
     background.load("images/background.png");
     citizen.load("images/citizen.png");
     citizenh.load("images/citizenh.png");
-    citizens.load("images/citizen.png");
+    citizens.load("images/citizens.png");
     
 //---------------------------------------------
     
@@ -328,12 +327,12 @@ void ofApp::draw(){
 
     //draw all cv images
 //    rgb.draw(0,0);
-    //    hsb.draw(640,0);
-    //    hue.draw(0,480);
-    //    sat.draw(640,480);
-    //    bri.draw(1280,480);
+//        hsb.draw(640,0);
+//        hue.draw(0,480);
+//        sat.draw(640,480);
+//        bri.draw(1280,480);
     //    filtered.draw(0,960);
-    //    contours.draw(0,0);
+   //      contourFinder.draw(0,0);
     
     if(drawCamera){
         rgb.draw(0,0);
@@ -370,14 +369,16 @@ void ofApp::draw(){
         float y = contourFinder1.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()/2.5f);
         float x0 = contourFinder1.blobs[i].centroid.x+100*cos(ofGetElapsedTimef()/1.5f);
         float y0 = contourFinder1.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()/2.5f);
-//        ofSetColor(0, 0, 255);
-//        ofDrawCircle(contourFinder1.blobs[i].centroid.x*3, contourFinder1.blobs[i].centroid.y*2, 30);
+
         ofSetColor(255, 153, 170);
         ofDrawCircle(contourFinder1.blobs[i].centroid.x, contourFinder1.blobs[i].centroid.y, 30); // drawing pink circles on grid
         ofSetColor(183, 73, 91);
         ofDrawBitmapString("wind turbine", contourFinder1.blobs[i].centroid.x, contourFinder1.blobs[i].centroid.y+50);
-        citizen.draw(x0,y0,30,30);
-//        citizen.draw(x,y,30,30);
+        ofSetColor(255);
+        ofEnableAlphaBlending();
+        citizenh.draw(x0,y0,50,50);
+//        ofDisableAlphaBlending();
+      
     }
     
     for (int i=0; i<contourFinder2.nBlobs; i++) {
@@ -387,17 +388,21 @@ void ofApp::draw(){
         ofDrawCircle(contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y, 30); // drawing yellow circles on grid
         ofSetColor(191, 115, 22);
         ofDrawBitmapString("solar station", contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y+50);
-        citizen.draw(x1, y1,30,30);
+        ofSetColor(255);
+        ofEnableAlphaBlending();
+        citizenh.draw(x1, y1,50,50);
     }
     
         for (int i=0; i<contourFinder3.nBlobs; i++) {
-            float x2 = contourFinder3.blobs[i].centroid.x*2+30*cos(ofGetElapsedTimef()*2.0f);
-            float y2 = contourFinder3.blobs[i].centroid.y*1.5+100*sin(ofGetElapsedTimef()*0.75f);
+            float x2 = contourFinder3.blobs[i].centroid.x+30*cos(ofGetElapsedTimef()*2.0f);
+            float y2 = contourFinder3.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()*0.75f);
             ofSetColor(100, 143, 244);
             ofDrawCircle(contourFinder3.blobs[i].centroid.x, contourFinder3.blobs[i].centroid.y, 30); // drawing blue circles on grid
             ofSetColor(9, 37, 104);
             ofDrawBitmapString("nuclear plant", contourFinder3.blobs[i].centroid.x+50, contourFinder3.blobs[i].centroid.y+50);
-            citizen.draw(x2, y2,30,30);
+            ofSetColor(255);
+            ofEnableAlphaBlending();
+            citizens.draw(x2, y2,50,50);
         }
     
 //    ofSetColor(0, 0, 230);
@@ -405,12 +410,7 @@ void ofApp::draw(){
 //    ofNoFill();
     ofBeginShape();
     ofEndShape();
-    
-    
-   
 
-    
-    
     
     //print data
     ofSetColor(107, 114, 124);
@@ -436,6 +436,15 @@ void ofApp::draw(){
     << "Carbon Dioxide - Equivalent:  " << (contourFinder1 .nBlobs*12) + (contourFinder2.nBlobs*1000) + (contourFinder3.nBlobs*15) << "grams/cubic meter" <<endl;
     ofDrawBitmapString(pollutantData.str(), 1220, 30);
     
+    
+  
+//    for (int i=0; i<contourFinder1.nBlobs; i++) {
+//    ofSetColor(255);
+//    ofEnableAlphaBlending();
+//    citizenh.draw(x3, y3,100,100);
+//    citizens.draw(x3,y3,100,100);
+//    ofDisableAlphaBlending();}
+
     //---------------------------------------------------------
     
 }
