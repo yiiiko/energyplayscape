@@ -168,13 +168,24 @@ void Params::setup() {
     
     
 //    eCenter = ofPoint( ofGetWidth()/2, ofGetHeight()/2 );
-    eRad = 37;
-    velRad = 165;
-    lifeTime = 3.6;
+    eRad = 370;
+    velRad = 365;
+    lifeTime = 7.6;
     rotate = 0;
     force = -40;
     spinning = 14;
     friction = 0.01;
+    
+    eRad1 = 370;
+    velRad1 = 365;
+    force1 = -40;
+    
+    eRad2 = 370;
+    velRad2 = 365;
+    force2 = -40;
+    
+
+    
 }
 Particle::Particle() {
     live = false;
@@ -359,6 +370,22 @@ void ofApp::draw(){
     background.draw(0,0,1600,1048);
  
     
+    SO2_wind =0.055;
+    NOX_wind =0.065;
+    CO2_wind =15.5;
+    
+    SO2_coal =1.4;
+    NOX_coal =1.2;
+    CO2_coal =915;
+    
+    SO2_nuclear =0.0205;
+    NOX_nuclear =0.025;
+    CO2_nuclear =66;
+    
+    SO2_total= contourFinder1.nBlobs*SO2_wind + contourFinder2.nBlobs*SO2_coal + contourFinder3.nBlobs*SO2_nuclear;
+    NOX_total= contourFinder1.nBlobs*NOX_wind + contourFinder2.nBlobs*NOX_coal + contourFinder3.nBlobs*NOX_nuclear;
+    CO2_total= contourFinder1.nBlobs*CO2_wind + contourFinder2.nBlobs*CO2_coal + contourFinder3.nBlobs*CO2_nuclear;
+    emission_total = SO2_total+NOX_total+CO2_total;
     
     float x3 = 850;
     float y3 = 200;
@@ -370,39 +397,44 @@ void ofApp::draw(){
         float x0 = contourFinder1.blobs[i].centroid.x+100*cos(ofGetElapsedTimef()/1.5f);
         float y0 = contourFinder1.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()/2.5f);
 
-        ofSetColor(255, 153, 170);
-        ofDrawCircle(contourFinder1.blobs[i].centroid.x, contourFinder1.blobs[i].centroid.y, 30); // drawing pink circles on grid
+//        ofSetColor(255, 153, 170);
+//        ofDrawCircle(contourFinder1.blobs[i].centroid.x, contourFinder1.blobs[i].centroid.y, 30); // drawing pink circles on grid
         ofSetColor(183, 73, 91);
         ofDrawBitmapString("wind turbine", contourFinder1.blobs[i].centroid.x, contourFinder1.blobs[i].centroid.y+50);
         ofSetColor(255);
         ofEnableAlphaBlending();
+        
+        if( emission_total > 900){
         citizenh.draw(x0,y0,50,50);
-//        ofDisableAlphaBlending();
+        }else {
+        citizenh.draw(x0,y0,50,50);
+        }
+
       
     }
     
     for (int i=0; i<contourFinder2.nBlobs; i++) {
         float x1 = contourFinder2.blobs[i].centroid.x+50*cos(ofGetElapsedTimef()*1.0f);
         float y1 = contourFinder2.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()/3.5f);
-        ofSetColor(244, 215, 100);
-        ofDrawCircle(contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y, 30); // drawing yellow circles on grid
+//        ofSetColor(244, 215, 100);
+//        ofDrawCircle(contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y, 30); // drawing yellow circles on grid
         ofSetColor(191, 115, 22);
-        ofDrawBitmapString("solar station", contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y+50);
+        ofDrawBitmapString("coal power plant", contourFinder2.blobs[i].centroid.x, contourFinder2.blobs[i].centroid.y+50);
         ofSetColor(255);
         ofEnableAlphaBlending();
-        citizenh.draw(x1, y1,50,50);
+        citizens.draw(x1, y1,50,50);
     }
     
         for (int i=0; i<contourFinder3.nBlobs; i++) {
             float x2 = contourFinder3.blobs[i].centroid.x+30*cos(ofGetElapsedTimef()*2.0f);
             float y2 = contourFinder3.blobs[i].centroid.y+100*sin(ofGetElapsedTimef()*0.75f);
-            ofSetColor(100, 143, 244);
-            ofDrawCircle(contourFinder3.blobs[i].centroid.x, contourFinder3.blobs[i].centroid.y, 30); // drawing blue circles on grid
+//            ofSetColor(100, 143, 244);
+//            ofDrawCircle(contourFinder3.blobs[i].centroid.x, contourFinder3.blobs[i].centroid.y, 30); // drawing blue circles on grid
             ofSetColor(9, 37, 104);
             ofDrawBitmapString("nuclear plant", contourFinder3.blobs[i].centroid.x+50, contourFinder3.blobs[i].centroid.y+50);
             ofSetColor(255);
             ofEnableAlphaBlending();
-            citizens.draw(x2, y2,50,50);
+            citizenh.draw(x2, y2,50,50);
         }
     
 //    ofSetColor(0, 0, 230);
@@ -431,10 +463,14 @@ void ofApp::draw(){
     stringstream pollutantData;
     pollutantData<< "Air Pollutants and Greenhouse Gases" <<endl
     << "  " <<endl
-    << "Sulfur Dioxide:               " << (contourFinder1 .nBlobs*0.055) + (contourFinder2.nBlobs*1.4) + (contourFinder3.nBlobs*0.021) << "grams/cubic meter" <<endl
-    << "Nitrogen Oxide:               " << (contourFinder1 .nBlobs*0.065) + (contourFinder2.nBlobs*1.2) + (contourFinder3.nBlobs*0.025) << "grams/cubic meter" <<endl
-    << "Carbon Dioxide - Equivalent:  " << (contourFinder1 .nBlobs*12) + (contourFinder2.nBlobs*1000) + (contourFinder3.nBlobs*15) << "grams/cubic meter" <<endl;
-    ofDrawBitmapString(pollutantData.str(), 1220, 30);
+//    << "Sulfur Dioxide:               " << (contourFinder1 .nBlobs * SO2_wind) + (contourFinder2.nBlobs* SO2_coal) + (contourFinder3.nBlobs* SO2_nuclear) << "grams/cubic meter" <<endl
+//    << "Nitrogen Oxide:               " << (contourFinder1 .nBlobs* NOX_wind) + (contourFinder2.nBlobs* NOX_coal) + (contourFinder3.nBlobs* NOX_nuclear) << "grams/cubic meter" <<endl
+//    << "Carbon Dioxide - Equivalent:  " << (contourFinder1 .nBlobs* CO2_wind) + (contourFinder2.nBlobs*CO2_coal) + (contourFinder3.nBlobs*CO2_nuclear) << "grams/cubic meter" <<endl
+    << "Total SO2:  " <<SO2_total << "grams/cubic meter" <<endl
+    << "Total NOX:  " << NOX_total << "grams/cubic meter" <<endl
+    << "Total CO2:  " << CO2_total << "grams/cubic meter" <<endl
+    << "Total Emission:  " << emission_total << "grams/cubic meter" <<endl;
+    ofDrawBitmapString(pollutantData.str(), 850, 30);
     
     
   

@@ -29,6 +29,7 @@ public:
     ofPoint eCenter1;    //Emitter center
     ofPoint eCenter2;    //Emitter center
     ofPoint eCenter3;    //Emitter center
+
     float eRad;         //Emitter radius
     float velRad;       //Initial velocity limit
     float lifeTime;     //Lifetime in seconds
@@ -39,9 +40,35 @@ public:
     float spinning;    //Spinning force inside emitter
     float friction;    //Friction, in the range [0, 1]
     float transparency;
+    
+    float eRad1;         //Emitter radius
+    float velRad1;       //Initial velocity limit
+    float force1;       //Attraction/repulsion force inside emitter
+    
+    float eRad2;         //Emitter radius
+    float velRad2;       //Initial velocity limit
+    float force2;       //Attraction/repulsion force inside emitter
+
+    
+//    float SO2_wind;
+//    float NOX_wind;
+//    float CO2_wind;
+//    float SO2_nuclear;
+//    float NOX_nuclear;
+//    float CO2_nuclear;
+//    float SO2_coal;
+//    float NOX_coal;
+//    float CO2_coal;
+//
+//    float SO2_total;
+//    float NOX_total;
+//    float CO2_total;
+//    float emission_total;
+    
     ofxCvContourFinder contourFinder1;
     ofxCvContourFinder contourFinder2;
     ofxCvContourFinder contourFinder3;
+    
     
 };
 
@@ -160,6 +187,21 @@ public:
     string currentModeStr;
     vector <ofPoint> attractPoints;
     vector <ofPoint> attractPointsWithMovement;
+    
+    float SO2_wind;
+    float NOX_wind;
+    float CO2_wind;
+    float SO2_nuclear;
+    float NOX_nuclear;
+    float CO2_nuclear;
+    float SO2_coal;
+    float NOX_coal;
+    float CO2_coal;
+    
+    float SO2_total;
+    float NOX_total;
+    float CO2_total;
+    float emission_total;
     
 };
 
